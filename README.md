@@ -20,36 +20,37 @@ private async Task<List<EmployeeModel>> GetEmployeesAsync(){
 
 private async Task<List<EmployeeModel>> GetEmployeesLongProcessAsync()
 {
-**Cts = new CancellationTokenSource();**  
+Cts = new CancellationTokenSource();  
 Task<List<EmployeeModel>> task = _employeeService.GetEmployeeModelLongProcessAsync(progressIndicator, Cts.Token);  
 }  
 
 private void CancelEmployeesLongProcess()
 {
-	**Cts.Cancel();**
-	CanLongProcess = true;
+ Cts.Cancel();  
+ CanLongProcess = true;  
 }
 ```
 
 ```
  public async Task<List<EmployeeModel>> GetEmployeeModelLongProcessAsync(IProgress<int> progress, CancellationToken cts){  
-            await Task.Run(async () =>
-            {
-                int totalRecords = 100;
-                for (int i = 0; i < totalRecords; i++)
-                {
-                    await Task.Delay(1000);
-                    **cts.ThrowIfCancellationRequested();**
-					if (progress != null)
-                    {
-                        **progress.Report(i * 100 / totalRecords);**
-                    }
-                }
-            }, cts);
+	await Task.Run(async () =>
+	{
+		int totalRecords = 100;
+		for (int i = 0; i < totalRecords; i++)
+		{
+			await Task.Delay(1000);
+			cts.ThrowIfCancellationRequested();  
+			if (progress != null)
+			{
+				progress.Report(i * 100 / totalRecords);  
+			}
+		}
+	}, cts);
 }  
 ```
 
 ## Progress of async operation  
+
 IProgress<T> implementation is offered Natively by .Net. Here progress.Report will call the ReportProgress. ReportProgress will handle the UI.  
 
 ```
@@ -57,13 +58,27 @@ private async Task<List<EmployeeModel>> GetEmployeesLongProcessAsync()
 {
   CanLongProcess = false;
   var progressIndicator = new Progress<int>(ReportProgress);
-   Task<List<EmployeeModel>> task = _employeeService.GetEmployeeModelLongProcessAsync(progressIndicator, Cts.Token);
+  Task<List<EmployeeModel>> task = _employeeService.GetEmployeeModelLongProcessAsync(progressIndicator, Cts.Token);
 }
 
 private void ReportProgress(int value)
 {
-	CurrentProgress = value;
+  CurrentProgress = value;
 }
 ```
 
-Note: Always await in try catch block if the async operation needs the functionality of cancellation
+Note: Always await in try catch block if the async operation needs the functionality of cancellation and dispose the CancellationTokenSource
+```
+ try
+	{
+		var e = await task;
+	}
+	catch (OperationCanceledException ex)
+	{
+		Console.Write($"Cancellation {ex.Message}");
+	}
+	finally
+	{
+		Cts.Dispose();
+	}
+```
