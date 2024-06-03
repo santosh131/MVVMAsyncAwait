@@ -1,0 +1,59 @@
+﻿<Window x:Class="MVVMAsyncAwait.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MVVMAsyncAwait"
+        mc:Ignorable="d"        
+        xmlns:VM="clr-namespace:MVVMAsyncAwait.ViewModels"
+        d:DataContext="{d:DesignInstance Type=VM:EmployeeViewModel}"
+        Title="MainWindow" Height="580" Width="1000"
+        Background="DarkGray">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="60"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="20"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="200"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <ListView Margin="5,5,5,5" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3"  MinHeight="300"
+                      ItemsSource="{Binding Employees}">
+            <ListView.View>
+                <GridView>                    
+                    <GridViewColumn Header="Id"  DisplayMemberBinding="{Binding Id}" Width="50"/>
+                    <GridViewColumn Header="Name"  DisplayMemberBinding="{Binding Name}" Width="100"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" 
+                    HorizontalAlignment="Center" Orientation="Horizontal"  >
+
+            <Button Content="Click Me!!" Style="{StaticResource DefaultButtonStyle}"
+                Command="{Binding EmployeesCommand}"
+                VerticalContentAlignment="Center" VerticalAlignment="Center" ></Button>
+            <Button Content="Long Process"  Style="{StaticResource DefaultButtonStyle}"
+                Command="{Binding EmployeesLongProcessCommand}"
+                    IsEnabled="{Binding CanLongProcess}"
+                VerticalContentAlignment="Center" VerticalAlignment="Center" ></Button>
+            <Button Content="Cancel Long Process"  Style="{StaticResource DefaultButtonStyle}"
+                Command="{Binding EmployeesLongProcessCancelCommand}"
+                VerticalContentAlignment="Center" VerticalAlignment="Center" 
+                    ></Button>
+
+        </StackPanel>
+
+        <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" 
+                    Orientation="Horizontal" Background="AliceBlue">
+            <Label Content="Status: "></Label>
+            <TextBlock Width="100" Background="White" IsEnabled="False"
+                       VerticalAlignment="Center" FontWeight="Bold"
+                       Text="{Binding CurrentProgress}"></TextBlock>
+        </StackPanel>
+    </Grid>
+</Window>
