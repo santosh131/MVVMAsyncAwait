@@ -1,16 +1,56 @@
 # MVVMAsyncAwait  
 
 Install following packages  
-**CommunityToolkit.Mvvm**
+**CommunityToolkit.Mvvm**  
 **Microsoft.Extensions.DependencyInjection**
 
-A simple WPF application using MVVM & async , await. Implemented button click events using the AsyncRelayCommand.
+A simple WPF application using MVVM & async , await.  
+Implemented button click events using the AsyncRelayCommand.
 
 ```  
 private async Task<List<EmployeeModel>> GetEmployeesAsync(){
   var e = await _employeeService.GetEmployeeModelsAsync();
 }  
 ```  
+
+- ViewModel file inherits from **ObservableObject** which implements the **INotifyPropertyChanged, INotifyPropertyChanging**.  
+- Use **OnPropertyChanged** in the Property setter 
+```
+public int CurrentProgress
+{
+    get
+    {
+        return _currentProgress;
+    }
+    set
+    {
+        _currentProgress = value;
+        OnPropertyChanged(nameof(CurrentProgress));
+    }
+}
+```
+
+## Dependency Injection  
+- 1. App.xaml - in **Application_Startup** using the CommunityToolkit.Mvvm.DependencyInjection & Microsoft.Extensions.DependencyInjection register the interface with concrete type.  
+```
+private void Application_Startup(object sender, StartupEventArgs e)
+{
+    ServiceCollection sc = new ServiceCollection();
+    ServiceProvider serviceProvider = sc
+        .AddTransient<IEmployeeService, EmployeeService>()
+        .AddTransient<EmployeeViewModel>()
+        .BuildServiceProvider();
+    Ioc.Default.ConfigureServices(serviceProvider);
+}
+```  
+- 2.  In the MainWindow.xaml, in constructor using the GetRequiredService method will Resolves an instance of a specified service type.  
+```
+public MainWindow()
+{
+    InitializeComponent();
+    DataContext = Ioc.Default.GetRequiredService<EmployeeViewModel>();
+}
+```
 
 ## Cancellation of async operation  
 
